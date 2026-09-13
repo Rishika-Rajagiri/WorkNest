@@ -33,7 +33,24 @@ const userSchema=new mongoose.Schema({
   bio:{
     type:String,
     default:""
-  }
+  },
+  emailVerified:{
+    type:Boolean,
+    default:false
+  },
+  emailVerificationOTP: {
+    type: String,
+    default: null
+  },
+
+  emailVerificationOTPExpires: {
+  type: Date,
+  default: null
+  },
+  otpLastSentAt: {
+    type: Date,
+    default: null
+  } 
 },
   {
   timestamps:true
