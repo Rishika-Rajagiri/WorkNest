@@ -173,7 +173,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile=async(req,res)=>{
   try{
-    const {name,skills,bio,role}=req.body;
+    const {name,skills,bio}=req.body;
 
     const user=await User.findById(req.user.id);
 
@@ -186,7 +186,6 @@ const updateProfile=async(req,res)=>{
     if (name) user.name = name;
     if (skills) user.skills = skills;
     if (bio) user.bio = bio;
-    if (role) user.role = role;
 
     await user.save();
 
