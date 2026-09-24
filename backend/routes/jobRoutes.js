@@ -7,7 +7,7 @@ const {
   getAllJobs,
   getJobById,
   updateJob,
-  deleteJob
+  deleteJob,searchJobs
 } = require("../controllers/jobController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -23,6 +23,10 @@ router.post(
 
 // GET ALL JOBS
 router.get("/getAllJobs", getAllJobs);
+
+
+//search jobs
+router.get("/search", searchJobs);
 
 // GET SINGLE JOB
 router.get("/:id", getJobById);
@@ -42,5 +46,7 @@ router.delete(
   authorizeRole("client"),
   deleteJob
 );
+
+
 
 module.exports = router;

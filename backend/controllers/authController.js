@@ -74,7 +74,6 @@ const registerUser = async (req, res) => {
 // LOGIN USER
 const loginUser = async (req, res) => {
   try {
-    console.log("REQ BODY:", req.body);
     const { email, password } = req.body;
 
     // Check required fields
@@ -85,7 +84,7 @@ const loginUser = async (req, res) => {
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(401).json({
@@ -139,7 +138,7 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error logging in:", error);
+    console.error("Login error:", error.message);
 
     res.status(500).json({
       message: "Server error"
@@ -222,7 +221,7 @@ const verifyEmail=async (req,res)=>{
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+emailVerificationOTP +emailVerificationOTPExpires");
 
     if (!user) {
       return res.status(404).json({

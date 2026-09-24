@@ -57,6 +57,106 @@ const getAllJobs=async (req,res)=>{
   }
 }
 
+
+// SEARCH AND FILTER JOBS
+const searchJobs = async (req, res) => {
+  try {
+    const {
+      keyword,
+      skill,
+      minBudget,
+      maxBudget,
+      deadlineBefore,
+      deadlineAfter,
+      status,
+      sort
+    } = req.query;
+
+    // Build search conditions dynamically
+    const filter = {};
+
+    // Only show open jobs by default
+    filter.status = status || "open";
+
+    // Keyword search in title and description
+    if (keyword) {
+      filter.$or = [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } }
+      ];
+    }
+
+    // Skill filter
+    if (skill) {
+      filter.skills = {
+        $regex: skill,
+        $options: "i"
+      };
+    }
+
+    // Budget filter
+    if (minBudget || maxBudget) {
+      filter.budget = {};
+
+      if (minBudget) {
+        filter.budget.$gte = Number(minBudget);
+      }
+
+      if (maxBudget) {
+        filter.budget.$lte = Number(maxBudget);
+      }
+    }
+
+    // Deadline filter
+    if (deadlineBefore || deadlineAfter) {
+      filter.deadline = {};
+
+      if (deadlineBefore) {
+        filter.deadline.$lte = new Date(deadlineBefore);
+      }
+
+      if (deadlineAfter) {
+        filter.deadline.$gte = new Date(deadlineAfter);
+      }
+    }
+
+    // Sorting
+    let sortOption = { createdAt: -1 };
+
+    if (sort === "budget_asc") {
+      sortOption = { budget: 1 };
+    } else if (sort === "budget_desc") {
+      sortOption = { budget: -1 };
+    } else if (sort === "deadline_asc") {
+      sortOption = { deadline: 1 };
+    } else if (sort === "deadline_desc") {
+      sortOption = { deadline: -1 };
+    } else if (sort === "newest") {
+      sortOption = { createdAt: -1 };
+    } else if (sort === "oldest") {
+      sortOption = { createdAt: 1 };
+    }
+
+    // Find matching jobs
+    const jobs = await Job.find(filter)
+      .populate("client", "name email")
+      .sort(sortOption);
+
+    res.status(200).json({
+      count: jobs.length,
+      jobs
+    });
+
+  } catch (error) {
+    console.error("Error searching jobs:", error);
+
+    res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
 //get single job
 const getJobById = async (req, res) => {
   try {
@@ -154,5 +254,5 @@ const deleteJob = async (req, res) => {
 
 
 module.exports={
-  createJob,getAllJobs,getJobById,updateJob,deleteJob
+  createJob,getAllJobs,getJobById,updateJob,deleteJob,searchJobs
 }

@@ -28,31 +28,34 @@ const getMyContracts = async (req, res) => {
 };
 
 //get single contract
-const getSingleContract=async (req,res)=>{
-  try{
-    const {id}=req.params;
+const getSingleContract = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    const contract = await Contract.findById(id)
-    .populate('client','name email')
-     .populate('freelancer', 'name email')
-      .populate('job', 'title description budget')
-      .populate('proposal', 'coverLetter bidAmount deliveryTime status');
+    const contract = await Contract.findById(id);
 
-     if (!contract) {
+    if (!contract) {
       return res.status(404).json({
         message: 'Contract not found'
       });
     }
-    
-    //only client or freelancer can view the contract
+
     if (
-      contract.client._id.toString() !== req.user.id &&
-      contract.freelancer._id.toString() !== req.user.id
+      contract.client.toString() !== req.user.id &&
+      contract.freelancer.toString() !== req.user.id
     ) {
       return res.status(403).json({
         message: 'Access denied'
       });
     }
+
+    await contract.populate('client', 'name email');
+    await contract.populate('freelancer', 'name email');
+    await contract.populate('job', 'title description budget');
+    await contract.populate(
+      'proposal',
+      'coverLetter bidAmount deliveryTime status'
+    );
 
     res.status(200).json({
       contract
@@ -63,9 +66,8 @@ const getSingleContract=async (req,res)=>{
       message: 'Server error',
       error: error.message
     });
-       
   }
-}
+};
 
 // COMPLETE CONTRACT
 const completeContract = async (req, res) => {

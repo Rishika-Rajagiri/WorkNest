@@ -18,7 +18,8 @@ const userSchema=new mongoose.Schema({
 
   password:{
     type:String,
-    required:true
+    required:true,
+    select: false
   },
 
   role:{
@@ -40,13 +41,16 @@ const userSchema=new mongoose.Schema({
   },
   emailVerificationOTP: {
     type: String,
-    default: null
+    default: null,
+    select: false
   },
 
   emailVerificationOTPExpires: {
   type: Date,
-  default: null
+  default: null,
+  select: false
   },
+  
   otpLastSentAt: {
     type: Date,
     default: null
